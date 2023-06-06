@@ -1,3 +1,4 @@
+
 import re
 import pytest
 from unittest.mock import Mock
@@ -19,7 +20,7 @@ def test_valid_email_existing_user():
     result = uc.get_user_by_email(email)
     assert result == {'email': email, 'name': 'Test User'}
 
-#Test valid email of a non-existing user
+# Test valid email of a non-existing user
 @pytest.mark.unit
 def test_valid_email_non_existing_user():
     email = 'non_existing@example.com'
@@ -27,19 +28,6 @@ def test_valid_email_non_existing_user():
 
     result = uc.get_user_by_email(email)
     assert result is None
-@pytest.mark.unit
-def get_user_by_email(self, email):
-    if not isinstance(email, str) or not re.fullmatch(emailValidator, email):
-        raise ValueError('Error: invalid email address')
-
-    users = self.dao.find({'email': email})
-    if not users:
-        return None
-    elif len(users) >= 1:
-        return users[0]
-    else:
-        print(f'Error: more than one user found with mail {email}')
-        return users[0]
 
 # Test case for an invalid email format
 @pytest.mark.unit
@@ -88,3 +76,35 @@ def test_duplicate_email_addresses():
 
     result = uc.get_user_by_email(email)
     assert result == {'email': email, 'name': 'Test User'}
+
+# New test cases
+
+# Test case for Monkey/Ad-hoc with random string as email
+@pytest.mark.unit
+def test_random_string_email():
+    email = 'randomstring'
+
+    with pytest.raises(ValueError):
+        uc.get_user_by_email(email)
+
+# Test case for Boundary Value Analysis with smallest valid email
+@pytest.mark.unit
+def test_smallest_valid_email():
+    # Smallest possible valid email according to standard email format
+    email = 'a@b.co'
+    mock_dao.find.return_value = [{'email': email, 'name': 'Test User'}]
+
+    result = uc.get_user_by_email(email)
+    assert result == {'email': email, 'name': 'Test User'}
+
+# Test case for Boundary Value Analysis with a very large email
+@pytest.mark.unit
+def test_very_large_valid_email():
+    # Construct a very large but technically valid email
+    email = 'a' * 64 + '@' + 'b' * 63 + '.com'
+    
+    # Assume that such a large email is not expected to be in the system
+    mock_dao.find.return_value = []
+
+    result = uc.get_user_by_email(email)
+    assert result is None
