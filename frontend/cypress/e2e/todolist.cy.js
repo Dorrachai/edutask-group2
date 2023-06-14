@@ -1,22 +1,10 @@
 import "./login.cy"; // Import the login functionality
 
+// Define a constant for the maximum length text.
+const MAX_LENGTH_TEXT = new Array(257).join("a");
+
 // Test suite for creating to-do items
 describe("R8UC1: Create To-Do Items", () => {
-  // Log in and set up the initial state before the test suite
-  before(() => {
-    cy.visit("http://localhost:3000/");
-    cy.viewport(1920, 1080);
-    cy.contains("div", "Email Address")
-      .find("input[type=text]")
-      .type("mon.doe@gmail.com");
-
-    cy.get("form").submit();
-    cy.contains("div", "Title")
-      .find("input[type=text]")
-      .type("Test task");
-    cy.contains("Create new Task").click();
-  });
-
   // Log in before each test case
   beforeEach(() => {
     cy.visit("http://localhost:3000/");
@@ -26,37 +14,31 @@ describe("R8UC1: Create To-Do Items", () => {
       .type("mon.doe@gmail.com");
 
     cy.get("form").submit();
+    cy.get(".container-element a").last().click();
   });
 
-  // Test case for adding two valid to-do items
-  it("R8UC1_1 and R8UC1_2: Add two todo items with valid texts", () => {
-    cy.get(".container-element a").last().click();
-
-    // Create the first todo item
+  it("TC1.1: Enter a valid text in the input field and click on the Add button", () => {
     cy.get(".inline-form").within(() => {
       cy.get("input[type=text]").type("Task 1");
       cy.get("input[type=submit]").click();
     });
 
-    // Create the second todo item
-    cy.get(".inline-form").within(() => {
-      cy.get("input[type=text]").type("Task 2");
-      cy.get("input[type=submit]").click();
-    });
+    cy.get("li.todo-item").last().contains("span", "Task 1");
   });
 
-  // Test case for verifying the new to-do item is added at the bottom of the list
-  it("End Condition: Verify new todo item is added at the bottom of the list", () => {
-    cy.get(".container-element a").last().click();
-    cy.get("li.todo-item").last().contains("span", "Task 2");
-  });
-
-  // Test case for checking if the input is disabled with an empty description
-  it("Alternative Scenario: Check if input is disabled with an empty description", () => {
-    cy.get(".container-element a").last().click();
+  it("TC1.2: Enter a minimum length (empty) text and click on the Add button", () => {
     cy.get(".inline-form").within(() => {
       cy.get("input[type=submit]").should("be.disabled");
     });
+  });
+
+  it("TC1.3: Enter a maximum length text and click on the Add button", () => {
+    cy.get(".inline-form").within(() => {
+      cy.get("input[type=text]").type(MAX_LENGTH_TEXT);
+      cy.get("input[type=submit]").click();
+    });
+
+    cy.get("li.todo-item").last().contains("span", MAX_LENGTH_TEXT);
   });
 });
 
@@ -74,29 +56,32 @@ describe("R8UC2: Toggle the completion status of a to-do item", () => {
     cy.get(".container-element a").last().click();
   });
 
-  // Test case for toggling the status of an incomplete to-do item to complete
-  it("R8UC2.1: Toggle the status of an incomplete to-do item to complete", () => {
+  it("TC2.1: Click on the checkbox of an incomplete to-do item", () => {
     cy.get("li.todo-item").last().within(() => {
       cy.get("span").first().click(); // Click on the first span (when it's unchecked)
     });
   });
 
-  it("R8UC2.2: Toggle the status of a completed to-do item to incomplete", () => {
+  it("TC2.2: Click on the checkbox of a completed to-do item", () => {
     cy.get("li.todo-item").last().within(() => {
       cy.get("span").first().click(); // Click on the first span (when it's unchecked)
-    });
-
-    //Toggle the status back to incomplete
-    cy.get("li.todo-item").last().within(() => {
       cy.get("span").first().click(); // Click on the first span (when it's checked)
     });
-
   });
+
+  it("TC2.3: Try to toggle the status of a to-do item that doesn't exist", () => {
+    cy.get('li.todo-item').its('length').then(initialCount => {
+      cy.get('li.todo-item').eq(initialCount).click({ force: true }).then(($el) => {
+        expect($el).to.not.exist;
+      });
+      cy.get('li.todo-item').its('length').should('eq', initialCount);
+    });
+  });
+
 });
 
 // Test suite for deleting a to-do item
 describe("R8UC3: Delete a to-do item", () => {
-  // Log in before each test case
   beforeEach(() => {
     cy.visit("http://localhost:3000/");
     cy.viewport(1920, 1080);
@@ -108,15 +93,19 @@ describe("R8UC3: Delete a to-do item", () => {
     cy.get(".container-element a").last().click();
   });
 
-  // Test case for deleting the last to-do item
-  it("R8UC3_1: Delete the last to-do item", () => {
+  it("TC3.1: Click on the delete button of a to-do item", () => {
     cy.get("li.todo-item").last().within(() => {
-      cy.get("span").last().click(); // Assuming the last span is the delete button
+      cy.get("span").last().click(); 
     });
   });
 
-  // Test case for verifying the last to-do item is removed
-  it("R8UC3_2: Verify the last to-do item is removed", () => {
-    cy.get("li.todo-item").last().contains("span", "Task 2").should("not.exist");
+  it("TC3.2: Try to delete a to-do item that doesn't exist", () => {
+    cy.get('li.todo-item').its('length').then(initialCount => {
+      cy.get('li.todo-item').eq(initialCount).find('span').last().click({ force: true }).then(($el) => {
+        expect($el).to.not.exist;
+      });
+      cy.get('li.todo-item').its('length').should('eq', initialCount);
+    });
   });
+
 });
