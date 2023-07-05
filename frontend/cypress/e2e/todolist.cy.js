@@ -17,7 +17,7 @@ describe("R8UC1: Create To-Do Items", () => {
     cy.get(".container-element a").last().click();
   });
 
-  it("TC1.1: Enter a valid text in the input field and click on the Add button", () => {
+  it("TC1.1: Enter a valid text in the input field and click on the submit button", () => {
     cy.get(".inline-form").within(() => {
       cy.get("input[type=text]").type("Task 1");
       cy.get("input[type=submit]").click();
@@ -26,13 +26,13 @@ describe("R8UC1: Create To-Do Items", () => {
     cy.get("li.todo-item").last().contains("span", "Task 1");
   });
 
-  it("TC1.2: Enter a minimum length (empty) text and click on the Add button", () => {
+  it("TC1.2: Enter a minimum length (empty) text and click on the submi tbutton", () => {
     cy.get(".inline-form").within(() => {
       cy.get("input[type=submit]").should("be.disabled");
     });
   });
 
-  it("TC1.3: Enter a maximum length text and click on the Add button", () => {
+  it("TC1.3: Enter a maximum length text and click on the submit button", () => {
     cy.get(".inline-form").within(() => {
       cy.get("input[type=text]").type(MAX_LENGTH_TEXT);
       cy.get("input[type=submit]").click();
