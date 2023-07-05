@@ -56,29 +56,32 @@ describe("R8UC2: Toggle the completion status of a to-do item", () => {
     cy.get(".container-element a").last().click();
   });
 
-  it("TC2.1: Click on the checkbox of an incomplete to-do item", () => {
+ it("TC2.4: Ensure the checkbox is marked after toggling an incomplete to-do item", () => {
     cy.get("li.todo-item").last().within(() => {
       cy.get("span").first().click(); // Click on the first span (when it's unchecked)
+      cy.get("span").first().should("have.class", "checked");
     });
   });
 
-  it("TC2.2: Click on the checkbox of a completed to-do item", () => {
+  it("TC2.5: Verify the to-do item is crossed out when marked as complete", () => {
     cy.get("li.todo-item").last().within(() => {
-      cy.get("span").first().click(); // Click on the first span (when it's unchecked)
+      cy.get("span").eq(1).should("have.css", "text-decoration", "line-through solid rgb(49, 46, 46)");
+    });
+  });
+
+  it("TC2.6: Ensure the checkbox is not marked after toggling a complete to-do item", () => {
+    cy.get("li.todo-item").last().within(() => {
       cy.get("span").first().click(); // Click on the first span (when it's checked)
+      cy.get("span").first().click(); // Click on the first span (when it's unchecked)
+      cy.get("span").first().should("not.have.class", "checked");
     });
   });
 
-  it("TC2.3: Try to toggle the status of a to-do item that doesn't exist", () => {
-    cy.get('li.todo-item').its('length').then(initialCount => {
-      cy.get('li.todo-item').eq(initialCount).click({ force: true }).then(($el) => {
-        expect($el).to.not.exist;
-      });
-      cy.get('li.todo-item').its('length').should('eq', initialCount);
+  it("TC2.7: Verify the to-do item is not crossed out when marked as incomplete", () => {
+    cy.get("li.todo-item").last().within(() => {
+      cy.get("span").eq(1).should("have.css", "text-decoration", "none solid rgb(49, 46, 46)");
     });
   });
-
-});
 
 // Test suite for deleting a to-do item
 describe("R8UC3: Delete a to-do item", () => {
