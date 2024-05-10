@@ -62,7 +62,6 @@ def test_database_unavailable():
     with pytest.raises(Exception):
         uc.get_user_by_email(email)
 
-    # Reset the side effect
     mock_dao.find.side_effect = None
 
 # Test case for duplicate email addresses in the database
@@ -77,7 +76,6 @@ def test_duplicate_email_addresses():
     result = uc.get_user_by_email(email)
     assert result == {'email': email, 'name': 'Test User'}
 
-# New test cases
 
 # Test case for Monkey/Ad-hoc with random string as email
 @pytest.mark.unit
@@ -108,3 +106,22 @@ def test_very_large_valid_email():
 
     result = uc.get_user_by_email(email)
     assert result is None
+
+# Test case for Boundary Value Analysis with duplicate email addresses
+@pytest.mark.unit
+def test_duplicate_email_addresses():
+    email = 'test@example.com'
+    mock_dao.find.return_value = [
+        {'email': email, 'name': 'Test User'},
+        {'email': email, 'name': 'Test User 2'},
+    ]
+
+    result = uc.get_user_by_email(email)
+    assert result == {'email': email, 'name': 'Test User'}
+
+# Test case for Boundary Value Analysis with no '@' in the email
+@pytest.mark.unit
+def test_no_at():
+    email = 'no_at_example.com'
+    with pytest.raises(ValueError):
+        uc.get_user_by_email(email)
