@@ -11,7 +11,7 @@ uc = UserController(dao=mock_dao)
 
 emailValidator = re.compile('.*@.*')
 
-# Test if email of existing user is valid
+# TC01: Test if email of existing user is valid
 @pytest.mark.unit
 def test_valid_email_existing_user():
     email = 'test@example.com'
@@ -20,7 +20,7 @@ def test_valid_email_existing_user():
     result = uc.get_user_by_email(email)
     assert result == {'email': email, 'name': 'Test User'}
 
-# Test valid email of a non-existing user
+# TC02:Test valid email of a non-existing user
 @pytest.mark.unit
 def test_valid_email_non_existing_user():
     email = 'non_existing@example.com'
@@ -29,7 +29,7 @@ def test_valid_email_non_existing_user():
     result = uc.get_user_by_email(email)
     assert result is None
 
-# Test case for an invalid email format
+# TC:03 Test case for an invalid email format
 @pytest.mark.unit
 def test_invalid_email_format():
     email = 'invalid_email_format'
@@ -37,7 +37,7 @@ def test_invalid_email_format():
     with pytest.raises(ValueError):
         uc.get_user_by_email(email)
 
-# Test case for an empty email string
+# TC:04 Test case for an empty email string
 @pytest.mark.unit
 def test_empty_email():
     email = ''
@@ -45,7 +45,7 @@ def test_empty_email():
     with pytest.raises(ValueError):
         uc.get_user_by_email(email)
 
-# Test case for a non-string email input
+# TC05: Test case for a non-string email input
 @pytest.mark.unit
 def test_non_string_email_input():
     email = 123
@@ -53,7 +53,7 @@ def test_non_string_email_input():
     with pytest.raises(ValueError):
         uc.get_user_by_email(email)
 
-# Test case for when the database is unavailable
+# TC06: Test case for when the database is unavailable
 @pytest.mark.unit
 def test_database_unavailable():
     email = 'test@example.com'
@@ -64,7 +64,7 @@ def test_database_unavailable():
 
     mock_dao.find.side_effect = None
 
-# Test case for duplicate email addresses in the database
+# TC07: Test case for duplicate email addresses in the database
 @pytest.mark.unit
 def test_duplicate_email_addresses():
     email = 'test@example.com'
@@ -77,7 +77,7 @@ def test_duplicate_email_addresses():
     assert result == {'email': email, 'name': 'Test User'}
 
 
-# Test case for Monkey/Ad-hoc with random string as email
+# TC08: Test case for Monkey/Ad-hoc with random string as email
 @pytest.mark.unit
 def test_random_string_email():
     email = 'randomstring'
@@ -85,7 +85,7 @@ def test_random_string_email():
     with pytest.raises(ValueError):
         uc.get_user_by_email(email)
 
-# Test case for Boundary Value Analysis with smallest valid email
+# TC10: Test case for Boundary Value Analysis with smallest valid email
 @pytest.mark.unit
 def test_smallest_valid_email():
     # Smallest possible valid email according to standard email format
@@ -95,7 +95,7 @@ def test_smallest_valid_email():
     result = uc.get_user_by_email(email)
     assert result == {'email': email, 'name': 'Test User'}
 
-# Test case for Boundary Value Analysis with a very large email
+# TC09: Test case for Boundary Value Analysis with a very large email
 @pytest.mark.unit
 def test_very_large_valid_email():
     # Construct a very large but technically valid email
@@ -107,19 +107,8 @@ def test_very_large_valid_email():
     result = uc.get_user_by_email(email)
     assert result is None
 
-# Test case for Boundary Value Analysis with duplicate email addresses
-@pytest.mark.unit
-def test_duplicate_email_addresses():
-    email = 'test@example.com'
-    mock_dao.find.return_value = [
-        {'email': email, 'name': 'Test User'},
-        {'email': email, 'name': 'Test User 2'},
-    ]
 
-    result = uc.get_user_by_email(email)
-    assert result == {'email': email, 'name': 'Test User'}
-
-# Test case for Boundary Value Analysis with no '@' in the email
+# TC11: Test case for Boundary Value Analysis with no '@' in the email
 @pytest.mark.unit
 def test_no_at():
     email = 'no_at_example.com'
